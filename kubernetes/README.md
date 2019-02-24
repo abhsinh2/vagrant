@@ -1,8 +1,8 @@
 ## Clone Repository
 
 ```
-git clone https://bitbucket-eng-sjc1.cisco.com/bitbucket/scm/~abhsinh2/notes.git
-cd notes/kubernetes/kubernetes-vm
+git clone https://github.com/abhsinh2/vagrant.git
+cd vagrant/kubernetes
 ```
 
 ## Edit Vagrantfile to add node details
@@ -16,7 +16,32 @@ nodes = [
         :type => "master",
         :box => "hashicorp-vagrant/ubuntu-16.04",
         :box_version => "1.0.1",
-        :eth1 => "192.168.205.10",
+        :eth1 => "172.28.128.4",
+        :mem => "2048",
+        :cpu => "2"
+    }
+]
+```
+
+**Two Masters:**
+
+```
+nodes = [
+    {
+        :name => "k8s-master-1",
+        :type => "master",
+        :box => "hashicorp-vagrant/ubuntu-16.04",
+        :box_version => "1.0.1",
+        :eth1 => "172.28.128.4",
+        :mem => "2048",
+        :cpu => "2"
+    },
+    {
+        :name => "k8s-master-2",
+        :type => "master",
+        :box => "hashicorp-vagrant/ubuntu-16.04",
+        :box_version => "1.0.1",
+        :eth1 => "172.28.128.5",
         :mem => "2048",
         :cpu => "2"
     }
@@ -32,7 +57,7 @@ nodes = [
         :type => "master",
         :box => "hashicorp-vagrant/ubuntu-16.04",
         :box_version => "1.0.1",
-        :eth1 => "192.168.205.10",
+        :eth1 => "172.28.128.4",
         :mem => "2048",
         :cpu => "2"
     },
@@ -41,7 +66,7 @@ nodes = [
         :type => "node",
         :box => "hashicorp-vagrant/ubuntu-16.04",
         :box_version => "1.0.1",
-        :eth1 => "192.168.205.11",
+        :eth1 => "172.28.128.5",
         :mem => "2048",
         :cpu => "2"
     },
@@ -50,7 +75,7 @@ nodes = [
         :type => "node",
         :box => "hashicorp-vagrant/ubuntu-16.04",
         :box_version => "1.0.1",
-        :eth1 => "192.168.205.12",
+        :eth1 => "172.28.128.6",
         :mem => "2048",
         :cpu => "2"
     }
@@ -75,27 +100,11 @@ Run:
 
 ```
 vagrant plugin install vagrant-vbguest
-vagrant vbguest k8s-master
-vagrant vbguest k8s-node-1
-vagrant vbguest k8s-node-2
+vagrant vbguest <VM-NAME>
 ```
 
 ## SSH Machines
 
 ```
-vagrant ssh k8s-master
-vagrant ssh k8s-node-1
-vagrant ssh k8s-node-2
-```
-
-## Kubernetes Configuration
-
-If you running only single VM with Master then run below commands:
-
-```
-sudo kubectl taint nodes <NODE_NAME> node-role.kubernetes.io/master:NoSchedule-
-
-e.g.
-
-sudo kubectl taint nodes k8s-mongo node-role.kubernetes.io/master:NoSchedule-
+vagrant ssh <VM-NAME>
 ```

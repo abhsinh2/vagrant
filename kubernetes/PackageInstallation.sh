@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# ip of this box
+IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
+HOST_NAME=$(hostname -s)
+
+echo "IP_ADDR is ${IP_ADDR}"
+echo "HOST_NAME is ${HOST_NAME}"
+
 #Disable swap, swapoff then edit your fstab removing any entry for swap partitions
 #You can recover the space with fdisk. You may want to reboot to ensure your config is ok. 
 # kubelet requires swap off
@@ -9,6 +16,10 @@ swapoff -a
 # Following change will keep swap off after reboot too
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 #vi /etc/fstab
+
+echo "Patchin 10-kubeadm.conf"
+sed -i '/ExecStart=/a Environment="KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs"' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+#sed -i '0,/ExecStart=/s//Environment="KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs"\n&/' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
 apt-get update
 
@@ -53,6 +64,9 @@ else
     #sudo apt-mark hold docker.io
     sudo apt-get install -y kubelet kubeadm kubectl
     sudo apt-mark hold kubelet kubeadm kubectl
+
+    sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
+    sudo systemctl restart kubelet
 fi
 
 #Check the status of our kubelet and our container runtime, docker.
